@@ -128,28 +128,35 @@ This objective focuses on implementing financial monitoring features that track 
 
 ### Task Description
 
-**Complete Tenant Management Backend**
+**Implement Authentication Backend**
 
 #### Sub-Tasks
 
-- Create Tenant List Validation
-- Implement Search Tenant Service
-- Create Tenant Search Unit Tests
-- Create Tenant Validation Unit Tests
+- Create Authentication Model
+- Create Authentication Service
+- Create Authentication Validation
+- Implement Role-Based Authentication
+- Create Authentication Service Unit Tests
+- Create Authentication Validation Unit Tests
 
 #### Deliverables
 
-- Tenant List Validation
-- Search Tenant Service
-- Tenant Search Test
-- Tenant Validation Test
+- Authentication Model
+- Authentication Service
+- Authentication Validation
+- Role-Based Authentication
+- Authentication Service Test
+- Authentication Validation Test
 
 #### Test Suite / PR Acceptance Criteria
 
-- It should validate tenant search requests successfully.
-- It should retrieve tenant records based on the tenant's name.
-- It should pass all Tenant Search Vitest unit tests successfully.
-- It should pass all Tenant Validation Vitest unit tests successfully.
+- It should validate the user's login credentials successfully.
+- It should authenticate the user using the provided email and password.
+- It should determine whether the authenticated user is an **Admin** or **Tenant**.
+- It should return the authenticated user's information successfully.
+- It should reject invalid login credentials successfully.
+- It should pass all Authentication Service Vitest unit tests successfully.
+- It should pass all Authentication Validation Vitest unit tests successfully.
 
 ---
 

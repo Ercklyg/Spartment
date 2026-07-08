@@ -25,17 +25,3 @@ const tenantList = [
 export async function getTenantList() {
   return tenantList;
 }
-
-export async function searchTenantByName(name) {
-  const tenant = tenantList.find(
-    (tenant) =>
-      tenant.name.toLowerCase() ===
-      name.toLowerCase()
-  );
-
-  if (!tenant) {
-    throw new Error("Tenant not found.");
-  }
-
-  return tenant;
-}

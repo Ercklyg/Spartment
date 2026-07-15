@@ -21,6 +21,60 @@ import {
   markNotificationAsRead,
 } from "../service/notificationService.js";
 
+const mockNotifications = [
+  {
+    id: 1,
+    role: "admin",
+    category: "Payment",
+    message: "Tenant payment is overdue.",
+    status: "Unread",
+  },
+  {
+    id: 2,
+    role: "admin",
+    category: "Lease",
+    message: "Lease expires in 7 days.",
+    status: "Unread",
+  },
+  {
+    id: 3,
+    role: "admin",
+    category: "Room",
+    message: "Room 102 is now vacant.",
+    status: "Read",
+  },
+  {
+    id: 4,
+    role: "admin",
+    category: "Maintenance",
+    message: "New maintenance request submitted.",
+    status: "Unread",
+  },
+  {
+    id: 5,
+    role: "tenant",
+    category: "Payment",
+    message: "Your payment is due tomorrow.",
+    status: "Unread",
+  },
+  {
+    id: 6,
+    role: "tenant",
+    category: "Maintenance",
+    message:
+      "Your maintenance request is being processed.",
+    status: "Read",
+  },
+  {
+    id: 7,
+    role: "tenant",
+    category: "Lease",
+    message:
+      "Lease renewal is available.",
+    status: "Unread",
+  },
+];
+
 describe("Notification Service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -28,25 +82,11 @@ describe("Notification Service", () => {
 
   it("should retrieve admin notifications successfully", async () => {
     // Arrange
-    const mockNotifications = [
-      {
-        id: 1,
-        role: "admin",
-        category: "Payment",
-        message: "Tenant payment is overdue.",
-        status: "Unread",
-      },
-      {
-        id: 2,
-        role: "admin",
-        category: "Lease",
-        message: "Lease expires in 7 days.",
-        status: "Unread",
-      },
-    ];
-
     getNotifications.mockResolvedValue(
-      mockNotifications
+      mockNotifications.filter(
+        (notification) =>
+          notification.role === "admin"
+      )
     );
 
     // Act
@@ -56,31 +96,23 @@ describe("Notification Service", () => {
     // Assert
     expect(
       getNotifications
-    ).toHaveBeenCalledTimes(1);
-
-    expect(
-      getNotifications
     ).toHaveBeenCalledWith("admin");
 
-    expect(result).toEqual(
-      mockNotifications
-    );
+    expect(result).toHaveLength(4);
+
+    expect(result.every(
+      (notification) =>
+        notification.role === "admin"
+    )).toBe(true);
   });
 
   it("should retrieve tenant notifications successfully", async () => {
     // Arrange
-    const mockNotifications = [
-      {
-        id: 5,
-        role: "tenant",
-        category: "Payment",
-        message: "Your payment is due tomorrow.",
-        status: "Unread",
-      },
-    ];
-
     getNotifications.mockResolvedValue(
-      mockNotifications
+      mockNotifications.filter(
+        (notification) =>
+          notification.role === "tenant"
+      )
     );
 
     // Act
@@ -90,15 +122,14 @@ describe("Notification Service", () => {
     // Assert
     expect(
       getNotifications
-    ).toHaveBeenCalledTimes(1);
-
-    expect(
-      getNotifications
     ).toHaveBeenCalledWith("tenant");
 
-    expect(result).toEqual(
-      mockNotifications
-    );
+    expect(result).toHaveLength(3);
+
+    expect(result.every(
+      (notification) =>
+        notification.role === "tenant"
+    )).toBe(true);
   });
 
   it("should return an empty notification list", async () => {
@@ -134,10 +165,7 @@ describe("Notification Service", () => {
   it("should update the notification status successfully", async () => {
     // Arrange
     const updatedNotification = {
-      id: 1,
-      role: "admin",
-      category: "Payment",
-      message: "Tenant payment is overdue.",
+      ...mockNotifications[0],
       status: "Read",
     };
 

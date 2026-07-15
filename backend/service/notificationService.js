@@ -5,11 +5,8 @@ import {
 
 export async function fetchNotifications(role) {
   try {
-    const notifications =
-      await getNotifications(role);
-
-    return notifications;
-  } catch {
+    return await getNotifications(role);
+  } catch (error) {
     throw new Error(
       "Failed to retrieve notifications."
     );

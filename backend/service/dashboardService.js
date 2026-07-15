@@ -1,75 +1,9 @@
-const rooms = [
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Occupied" },
-  { status: "Vacant" },
-];
-
-const tenants = [
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-  { status: "Active" },
-];
-
-const payments = [
-  { amount: 25000, status: "Paid" },
-  { amount: 30000, status: "Paid" },
-  { amount: 35000, status: "Paid" },
-  { amount: 35000, status: "Late" },
-];
-
-export async function fetchDashboardMetrics() {
+export async function fetchDashboardMetrics({
+  rooms,
+  tenants,
+  payments,
+}) {
   try {
-    const monthlyRevenue = payments.reduce(
-      (total, payment) => total + payment.amount,
-      0
-    );
-
     const occupiedRooms = rooms.filter(
       (room) => room.status === "Occupied"
     ).length;
@@ -81,6 +15,11 @@ export async function fetchDashboardMetrics() {
     const activeTenants = tenants.filter(
       (tenant) => tenant.status === "Active"
     ).length;
+
+    const monthlyRevenue = payments.reduce(
+      (total, payment) => total + payment.amount,
+      0
+    );
 
     const latePayments = payments.filter(
       (payment) => payment.status === "Late"

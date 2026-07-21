@@ -5,14 +5,7 @@ import {
   getPayments,
 } from "../model/paymentModel.js";
 
-
-import {
-  updateBillingPaymentStatus,
-} from "./billingService.js";
-
-
-
-
+import { updateBillingPaymentStatus } from "./billingService.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -24,120 +17,43 @@ import {
 |--------------------------------------------------------------------------
 */
 
-
 export async function confirmPayment(
+  paymentId,
 
-paymentId,
+  paymentMethod = "Cash",
+) {
+  try {
+    const payment = await getPaymentById(paymentId);
 
-paymentMethod = "Cash"
+    if (!payment) {
+      throw new Error("Payment not found.");
+    }
 
-){
+    const updatedPayment = await updatePaymentStatus(
+      paymentId,
 
+      {
+        status: "Paid",
 
-try{
+        paymentMethod,
 
+        paymentDate: new Date(),
+      },
+    );
 
-const payment =
+    if (payment.billingId) {
+      await updateBillingPaymentStatus(
+        payment.billingId,
 
-await getPaymentById(
+        "Paid",
+      );
+    }
 
-paymentId
-
-);
-
-
-
-
-if(!payment){
-
-
-throw new Error(
-"Payment not found."
-);
-
-
+    return updatedPayment;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
-
-
-
-
-
-const updatedPayment =
-
-await updatePaymentStatus(
-
-paymentId,
-
-{
-
-
-status:
-"Paid",
-
-
-paymentMethod,
-
-
-paymentDate:
-new Date()
-
-
-}
-
-);
-
-
-
-
-
-
-// Update billing status
-
-if(payment.billingId){
-
-
-await updateBillingPaymentStatus(
-
-payment.billingId,
-
-"Paid"
-
-);
-
-
-}
-
-
-
-
-
-return updatedPayment;
-
-
-
-
-}catch(error){
-
-
-throw new Error(
-
-error.message
-
-);
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -145,47 +61,13 @@ error.message
 |--------------------------------------------------------------------------
 */
 
-
-export async function getPaymentHistory(
-
-tenantId
-
-){
-
-
-try{
-
-
-return await getPaymentsByTenant(
-
-tenantId
-
-);
-
-
-
-}catch(error){
-
-
-throw new Error(
-
-"Failed to retrieve payment history."
-
-);
-
-
+export async function getPaymentHistory(tenantId) {
+  try {
+    return await getPaymentsByTenant(tenantId);
+  } catch (error) {
+    throw new Error("Failed to retrieve payment history.");
+  }
 }
-
-
-}
-
-
-
-
-
-
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -193,91 +75,30 @@ throw new Error(
 |--------------------------------------------------------------------------
 */
 
+export async function getPaymentMetrics() {
+  const payments = await getPayments();
 
-export async function getPaymentMetrics(){
+  const collectedRevenue = payments
 
+    .filter((payment) => payment.status === "Paid")
 
-const payments =
+    .reduce(
+      (total, payment) => total + payment.amount,
 
-await getPayments();
+      0,
+    );
 
+  const pendingPayments = payments.filter(
+    (payment) => payment.status === "Pending",
+  );
 
+  const latePayments = payments.filter((payment) => payment.status === "Late");
 
+  return {
+    collectedRevenue,
 
+    pendingPayments: pendingPayments.length,
 
-const collectedRevenue =
-
-payments
-
-.filter(
-
-payment =>
-
-payment.status === "Paid"
-
-)
-
-.reduce(
-
-(total,payment)=>
-
-total + payment.amount,
-
-0
-
-);
-
-
-
-
-
-const pendingPayments =
-
-payments.filter(
-
-payment =>
-
-payment.status === "Pending"
-
-);
-
-
-
-
-
-
-const latePayments =
-
-payments.filter(
-
-payment =>
-
-payment.status === "Late"
-
-);
-
-
-
-
-
-
-return {
-
-
-collectedRevenue,
-
-
-pendingPayments:
-
-pendingPayments.length,
-
-
-latePayments:
-
-latePayments.length
-
-
-};
-
-
+    latePayments: latePayments.length,
+  };
 }

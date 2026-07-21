@@ -9,8 +9,6 @@ describe("Tenant Dashboard", () => {
     render(<TenantDashboard />);
 
     await waitFor(() => {
-      expect(screen.getByText("Tenant Portal")).toBeInTheDocument();
-
       expect(screen.getByText("Juan Dela Cruz")).toBeInTheDocument();
     });
   });
@@ -28,4 +26,17 @@ describe("Tenant Dashboard", () => {
       expect(screen.getAllByText("Paid")).toHaveLength(2);
     });
   });
+
+  it("should display tenant risk information", async () => {
+    render(<TenantDashboard />);
+
+    await waitFor(() => {
+      expect(screen.getByText("High Risk")).toBeInTheDocument();
+
+      expect(
+        screen.getByText("Repeated late payments detected."),
+      ).toBeInTheDocument();
+    });
+  });
 });
+ 

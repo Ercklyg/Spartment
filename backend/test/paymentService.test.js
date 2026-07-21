@@ -1,422 +1,180 @@
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-} from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
+vi.mock("../model/paymentModel.js", () => ({
+  getPaymentById: vi.fn(),
 
+  updatePaymentStatus: vi.fn(),
 
-vi.mock(
-"../model/paymentModel.js",
-()=>({
+  getPaymentsByTenant: vi.fn(),
 
-getPaymentById:
-vi.fn(),
+  getPayments: vi.fn(),
+}));
 
-updatePaymentStatus:
-vi.fn(),
-
-getPaymentsByTenant:
-vi.fn(),
-
-getPayments:
-vi.fn(),
-
-})
-
-);
-
-
-
-vi.mock(
-"../service/billingService.js",
-()=>({
-
-updateBillingPaymentStatus:
-vi.fn(),
-
-})
-
-);
-
-
+vi.mock("../service/billingService.js", () => ({
+  updateBillingPaymentStatus: vi.fn(),
+}));
 
 import {
-
-confirmPayment,
-
-getPaymentHistory,
-
-getPaymentMetrics,
-
-}
-
-from "../service/paymentService.js";
-
-
+  confirmPayment,
+  getPaymentHistory,
+  getPaymentMetrics,
+} from "../service/paymentService.js";
 
 import {
+  getPaymentById,
+  updatePaymentStatus,
+  getPaymentsByTenant,
+  getPayments,
+} from "../model/paymentModel.js";
 
-getPaymentById,
+import { updateBillingPaymentStatus } from "../service/billingService.js";
 
-updatePaymentStatus,
+describe("Payment Service", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-getPaymentsByTenant,
+  it("should confirm payment successfully", async () => {
+    // Arrange
 
-getPayments,
+    getPaymentById.mockResolvedValue({
+      id: 1,
 
-}
+      tenantId: 101,
 
-from "../model/paymentModel.js";
+      billingId: 50,
 
+      amount: 5200,
 
+      status: "Pending",
+    });
 
-import {
+    updatePaymentStatus.mockResolvedValue({
+      id: 1,
 
-updateBillingPaymentStatus,
+      status: "Paid",
 
-}
+      paymentMethod: "Cash",
+    });
 
-from "../service/billingService.js";
+    // Act
 
+    const result = await confirmPayment(1);
 
+    // Assert
 
+    expect(getPaymentById).toHaveBeenCalledWith(1);
 
+    expect(updatePaymentStatus).toHaveBeenCalledWith(
+      1,
 
+      expect.objectContaining({
+        status: "Paid",
+      }),
+    );
 
-describe(
-"Payment Service",
-()=>{
+    expect(updateBillingPaymentStatus).toHaveBeenCalledWith(
+      50,
 
+      "Paid",
+    );
 
+    expect(result.status).toBe("Paid");
+  });
 
-beforeEach(()=>{
+  it("should retrieve tenant payment history", async () => {
+    // Arrange
 
-vi.clearAllMocks();
+    getPaymentsByTenant.mockResolvedValue([
+      {
+        id: 1,
 
-});
+        tenantId: 101,
 
+        amount: 5200,
 
+        status: "Paid",
+      },
+    ]);
 
+    // Act
 
+    const result = await getPaymentHistory(101);
 
+    // Assert
 
+    expect(getPaymentsByTenant).toHaveBeenCalledWith(101);
 
-it(
-"should confirm payment successfully",
-async()=>{
+    expect(result).toHaveLength(1);
+  });
 
+  it("should calculate revenue metrics", async () => {
+    // Arrange
 
+    getPayments.mockResolvedValue([
+      {
+        amount: 5000,
 
-// Arrange
+        status: "Paid",
+      },
 
-getPaymentById
-.mockResolvedValue({
+      {
+        amount: 2000,
 
-id:1,
+        status: "Pending",
+      },
 
-tenantId:101,
+      {
+        amount: 1000,
 
-billingId:50,
+        status: "Late",
+      },
+    ]);
 
-amount:5200,
+    // Act
 
-status:"Pending"
+    const result = await getPaymentMetrics();
 
-});
+    // Assert
 
+    expect(result.collectedRevenue).toBe(5000);
 
+    expect(result.pendingPayments).toBe(1);
 
+    expect(result.latePayments).toBe(1);
+  });
 
-updatePaymentStatus
-.mockResolvedValue({
+  it("should retrieve payment history with late and pending payments", async () => {
+    // Arrange
 
-id:1,
+    getPaymentsByTenant.mockResolvedValue([
+      {
+        id: 1,
+        tenantId: 101,
+        amount: 5000,
+        status: "Late",
+      },
 
-status:"Paid",
+      {
+        id: 2,
+        tenantId: 101,
+        amount: 5000,
+        status: "Pending",
+      },
+    ]);
 
-paymentMethod:"Cash"
+    // Act
 
-});
+    const result = await getPaymentHistory(101);
 
+    // Assert
 
+    expect(getPaymentsByTenant).toHaveBeenCalledWith(101);
 
+    expect(result).toHaveLength(2);
 
+    expect(result[0].status).toBe("Late");
 
-// Act
-
-const result =
-
-await confirmPayment(
-
-1
-
-);
-
-
-
-
-
-// Assert
-
-
-expect(
-
-getPaymentById
-
-)
-
-.toHaveBeenCalledWith(
-
-1
-
-);
-
-
-
-expect(
-
-updatePaymentStatus
-
-)
-
-.toHaveBeenCalledWith(
-
-1,
-
-expect.objectContaining({
-
-status:"Paid"
-
-})
-
-);
-
-
-
-expect(
-
-updateBillingPaymentStatus
-
-)
-
-.toHaveBeenCalledWith(
-
-50,
-
-"Paid"
-
-);
-
-
-
-expect(result.status)
-
-.toBe(
-
-"Paid"
-
-);
-
-
-
-});
-
-
-
-
-
-
-
-
-it(
-"should retrieve tenant payment history",
-async()=>{
-
-
-
-// Arrange
-
-getPaymentsByTenant
-
-.mockResolvedValue([
-
-{
-
-id:1,
-
-tenantId:101,
-
-amount:5200,
-
-status:"Paid"
-
-}
-
-]);
-
-
-
-
-
-// Act
-
-const result =
-
-await getPaymentHistory(
-
-101
-
-);
-
-
-
-
-
-// Assert
-
-
-expect(
-
-getPaymentsByTenant
-
-)
-
-.toHaveBeenCalledWith(
-
-101
-
-);
-
-
-
-expect(result)
-
-.toHaveLength(
-
-1
-
-);
-
-
-
-});
-
-
-
-
-
-
-
-
-
-it(
-"should calculate revenue metrics",
-async()=>{
-
-
-
-// Arrange
-
-getPayments
-
-.mockResolvedValue([
-
-
-{
-
-amount:5000,
-
-status:"Paid"
-
-},
-
-
-{
-
-amount:2000,
-
-status:"Pending"
-
-},
-
-
-{
-
-amount:1000,
-
-status:"Late"
-
-}
-
-
-]);
-
-
-
-
-
-// Act
-
-const result =
-
-await getPaymentMetrics();
-
-
-
-
-
-// Assert
-
-
-expect(
-
-result.collectedRevenue
-
-)
-
-.toBe(
-
-5000
-
-);
-
-
-
-expect(
-
-result.pendingPayments
-
-)
-
-.toBe(
-
-1
-
-);
-
-
-
-expect(
-
-result.latePayments
-
-)
-
-.toBe(
-
-1
-
-);
-
-
-
-});
-
-
-
-
-
+    expect(result[1].status).toBe("Pending");
+  });
 });

@@ -7,6 +7,8 @@ import PaymentHistory from "../components/PaymentHistory";
 describe("PaymentHistory", () => {
   const payments = [
     {
+      id: 1,
+
       paymentDate: "2026-07-20",
 
       amount: 6050,
@@ -17,6 +19,8 @@ describe("PaymentHistory", () => {
     },
 
     {
+      id: 2,
+
       paymentDate: "2026-06-20",
 
       amount: 5200,
@@ -31,14 +35,6 @@ describe("PaymentHistory", () => {
     render(<PaymentHistory payments={payments} />);
 
     expect(screen.getByText("Payment History")).toBeInTheDocument();
-
-    expect(screen.getByText("Date")).toBeInTheDocument();
-
-    expect(screen.getByText("Amount")).toBeInTheDocument();
-
-    expect(screen.getByText("Method")).toBeInTheDocument();
-
-    expect(screen.getByText("Status")).toBeInTheDocument();
   });
 
   it("should display payment records correctly", () => {

@@ -1,78 +1,32 @@
 let payments = [];
 
-
-
-
-
 /*
 |--------------------------------------------------------------------------
 | Create Payment Record
 |--------------------------------------------------------------------------
-| Created when admin records payment.
-|--------------------------------------------------------------------------
 */
 
+export async function createPaymentRecord(data) {
+  const payment = {
+    id: payments.length + 1,
 
-export async function createPaymentRecord(data){
+    tenantId: data.tenantId,
 
+    billingId: data.billingId,
 
-const payment = {
+    amount: data.amount,
 
+    paymentMethod: data.paymentMethod || "Cash",
 
-id:
+    paymentDate: null,
 
-payments.length + 1,
+    status: "Pending",
+  };
 
+  payments.push(payment);
 
-tenantId:
-
-data.tenantId,
-
-
-billingId:
-
-data.billingId,
-
-
-amount:
-
-data.amount,
-
-
-paymentMethod:
-
-data.paymentMethod || "Cash",
-
-
-paymentDate:
-
-null,
-
-
-status:
-
-"Pending"
-
-
-};
-
-
-
-payments.push(payment);
-
-
-
-return payment;
-
-
+  return payment;
 }
-
-
-
-
-
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -80,27 +34,9 @@ return payment;
 |--------------------------------------------------------------------------
 */
 
-
-export async function getPaymentById(id){
-
-
-return payments.find(
-
-payment =>
-
-payment.id == id
-
-);
-
-
+export async function getPaymentById(id) {
+  return payments.find((payment) => payment.id == id);
 }
-
-
-
-
-
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -108,117 +44,54 @@ payment.id == id
 |--------------------------------------------------------------------------
 */
 
-
 export async function updatePaymentStatus(
+  id,
 
-id,
+  data,
+) {
+  const payment = payments.find((payment) => payment.id == id);
 
-data
+  if (!payment) {
+    throw new Error("Payment not found.");
+  }
 
-){
+  payment.status = data.status;
 
+  payment.paymentMethod = data.paymentMethod;
 
-const payment =
+  payment.paymentDate = data.paymentDate;
 
-payments.find(
-
-payment =>
-
-payment.id == id
-
-);
-
-
-
-
-if(!payment){
-
-
-throw new Error(
-
-"Payment not found."
-
-);
-
-
+  return payment;
 }
-
-
-
-
-payment.status =
-
-data.status;
-
-
-
-payment.paymentMethod =
-
-data.paymentMethod;
-
-
-
-payment.paymentDate =
-
-data.paymentDate;
-
-
-
-return payment;
-
-
-}
-
-
-
-
-
-
-
 
 /*
 |--------------------------------------------------------------------------
 | Tenant Payment History
 |--------------------------------------------------------------------------
+|
+| Used by:
+| - Payment History
+| - Risk Detection
+|
+|--------------------------------------------------------------------------
 */
 
-
-export async function getPaymentsByTenant(
-
-tenantId
-
-){
-
-
-return payments.filter(
-
-payment =>
-
-payment.tenantId == tenantId
-
-);
-
-
+export async function getPaymentsByTenant(tenantId) {
+  return payments.filter((payment) => payment.tenantId == tenantId);
 }
-
-
-
-
-
-
-
 
 /*
 |--------------------------------------------------------------------------
 | All Payments
 |--------------------------------------------------------------------------
+|
+| Used by:
+| - Revenue Analytics
+| - Risk Detection
+|
+|--------------------------------------------------------------------------
 */
 
-
-export async function getPayments(){
-
-
-return payments;
-
-
+export async function getPayments() {
+  return payments;
 }

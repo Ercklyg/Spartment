@@ -459,4 +459,92 @@ GET /api/tenant/:tenantId
       ],
     });
   }),
+
+  /*
+==========================================
+RISK ANALYSIS API
+==========================================
+*/
+
+  /*
+GET Tenant Risk Analysis
+
+Backend:
+GET /api/risk/tenant/:tenantId
+
+*/
+
+  http.get("http://localhost:5000/api/risk/tenant/:tenantId", ({ params }) => {
+    return HttpResponse.json({
+      success: true,
+
+      data: {
+        tenantId: Number(params.tenantId),
+
+        riskLevel: "High",
+
+        latePayments: 3,
+
+        unpaidBalance: 5000,
+
+        indicators: [
+          "Repeated late payments detected.",
+
+          "Outstanding unpaid balance.",
+
+          "Payment delays exceeded allowed limit.",
+        ],
+
+        analyzedAt: "2026-07-20",
+      },
+    });
+  }),
+
+  /*
+GET High Risk Tenants
+
+Backend:
+GET /api/risk/high-risk
+
+*/
+
+  http.get("http://localhost:5000/api/risk/high-risk", () => {
+    return HttpResponse.json({
+      success: true,
+
+      data: [
+        {
+          id: 1,
+
+          tenantId: 1,
+
+          tenantName: "Juan Dela Cruz",
+
+          riskLevel: "High",
+
+          latePayments: 3,
+
+          unpaidBalance: 5000,
+
+          indicators: ["Repeated late payments", "Outstanding balance"],
+        },
+
+        {
+          id: 2,
+
+          tenantId: 2,
+
+          tenantName: "Maria Santos",
+
+          riskLevel: "Medium",
+
+          latePayments: 1,
+
+          unpaidBalance: 2000,
+
+          indicators: ["One late payment detected"],
+        },
+      ],
+    });
+  }),
 ];

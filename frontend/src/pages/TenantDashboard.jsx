@@ -2,9 +2,14 @@ import { useEffect, useState } from "react";
 
 import { getTenantInformation } from "../api/tenantApi";
 
+import { useTenantRisk } from "../hooks/useRiskAnalysis";
+
 import TenantHeader from "../components/TenantHeader";
 import TenantInfoCards from "../components/TenantInfoCards";
 import PaymentHistory from "../components/PaymentHistory";
+
+import RiskStatusCard from "../components/RiskStatusCard";
+import RiskIndicatorList from "../components/RiskIndicatorList";
 
 import Loading from "../components/Loading";
 import ErrorMessage from "../components/ErrorMessage";
@@ -33,6 +38,12 @@ export default function TenantDashboard() {
     loadTenant();
   }, []);
 
+  const {
+    risk,
+
+    loading: riskLoading,
+  } = useTenantRisk(tenantData?.tenant?.id);
+
   if (loading) {
     return <Loading />;
   }
@@ -49,7 +60,23 @@ export default function TenantDashboard() {
     <div className="max-w-6xl mx-auto p-6">
       <TenantHeader tenant={tenantData.tenant} />
 
-      <TenantInfoCards room={tenantData.room} />
+      <TenantInfoCards
+        room={{
+          ...tenantData.room,
+
+          riskLevel: risk?.riskLevel,
+        }}
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+        {riskLoading ? (
+          <p>Loading risk analysis...</p>
+        ) : (
+          <RiskStatusCard risk={risk} />
+        )}
+
+        <RiskIndicatorList indicators={risk?.indicators || []} />
+      </div>
 
       <PaymentHistory payments={tenantData.payments} />
     </div>

@@ -4,8 +4,6 @@ import {
   getPaymentMetrics,
 } from "../service/paymentService.js";
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Admin Confirm Payment
@@ -18,61 +16,25 @@ import {
 |--------------------------------------------------------------------------
 */
 
-
-export const confirmPaymentStatus = async (
-  req,
-  res
-) => {
-
+export const confirmPaymentStatus = async (req, res) => {
   try {
+    const payment = await confirmPayment(
+      req.params.id,
 
-
-    const payment =
-
-      await confirmPayment(
-
-        req.params.id,
-
-        req.body.paymentMethod || "Cash"
-
-      );
-
-
+      req.body.paymentMethod || "Cash",
+    );
 
     return res.status(200).json({
+      message: "Payment confirmed successfully.",
 
-      message:
-        "Payment confirmed successfully.",
-
-
-      data:
-        payment
-
+      data: payment,
     });
-
-
-
-  } catch(error){
-
-
+  } catch (error) {
     return res.status(400).json({
-
-      message:
-        error.message
-
+      message: error.message,
     });
-
-
   }
-
 };
-
-
-
-
-
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -80,62 +42,21 @@ export const confirmPaymentStatus = async (
 |--------------------------------------------------------------------------
 */
 
-
-export const getTenantPayments = async (
-  req,
-  res
-) => {
-
-
+export const getTenantPayments = async (req, res) => {
   try {
-
-
-    const payments =
-
-      await getPaymentHistory(
-
-        req.params.tenantId
-
-      );
-
-
+    const payments = await getPaymentHistory(req.params.tenantId);
 
     return res.status(200).json({
+      message: "Payment history retrieved successfully.",
 
-      message:
-        "Payment history retrieved successfully.",
-
-
-      data:
-        payments
-
-
+      data: payments,
     });
-
-
-
-  } catch(error){
-
-
+  } catch (error) {
     return res.status(400).json({
-
-      message:
-        error.message
-
+      message: error.message,
     });
-
-
   }
-
-
 };
-
-
-
-
-
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -143,43 +64,16 @@ export const getTenantPayments = async (
 |--------------------------------------------------------------------------
 */
 
+export const getRevenueMetrics = async (req, res) => {
+  try {
+    const metrics = await getPaymentMetrics();
 
-export const getRevenueMetrics = async(
-req,
-res
-)=>{
-
-
-try{
-
-
-const metrics =
-
-await getPaymentMetrics();
-
-
-
-return res.status(200).json({
-
-data:
-metrics
-
-});
-
-
-
-}catch(error){
-
-
-return res.status(500).json({
-
-message:
-error.message
-
-});
-
-
-}
-
-
+    return res.status(200).json({
+      data: metrics,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
 };

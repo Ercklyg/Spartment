@@ -12,11 +12,13 @@ import EmptyState from "../components/EmptyState";
 
 export default function TenantDashboard() {
   const [tenantData, setTenantData] = useState(null);
+
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function loadTenantInformation() {
+    async function loadTenant() {
       try {
         const data = await getTenantInformation(1);
 
@@ -28,7 +30,7 @@ export default function TenantDashboard() {
       }
     }
 
-    loadTenantInformation();
+    loadTenant();
   }, []);
 
   if (loading) {
@@ -36,7 +38,7 @@ export default function TenantDashboard() {
   }
 
   if (error) {
-    return <ErrorMessage />;
+    return <ErrorMessage message={error} />;
   }
 
   if (!tenantData) {

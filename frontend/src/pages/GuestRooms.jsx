@@ -26,9 +26,7 @@ export default function GuestRooms() {
 
   const handleInquiry = (room) => {
     reset();
-    window.dispatchEvent(new CustomEvent("spartment:room-inquiry", {
-      detail: { room },
-    }));
+    setSelectedRoom(room);
   };
 
   const handleBack = () => {

@@ -9,7 +9,7 @@ vi.mock("../hooks/useRooms", () => ({ default: vi.fn() }));
 vi.mock("../hooks/useInquiry", () => ({ default: vi.fn() }));
 
 describe("Guest room inquiry routing", () => {
-  it("opens customer service with the selected room", async () => {
+  it("opens the inquiry form with the selected room", async () => {
     const room = {
       id: "room-101",
       roomNumber: "101",
@@ -20,15 +20,11 @@ describe("Guest room inquiry routing", () => {
     const reset = vi.fn();
     useRooms.mockReturnValue({ rooms: [room], loading: false, error: "", refetch: vi.fn() });
     useInquiry.mockReturnValue({ createInquiry: vi.fn(), loading: false, error: "", success: "", reset });
-    const listener = vi.fn();
-    window.addEventListener("spartment:room-inquiry", listener);
-
     render(<GuestRooms />);
     await userEvent.click(screen.getByRole("button", { name: /inquire/i }));
 
     expect(reset).toHaveBeenCalledOnce();
-    expect(listener).toHaveBeenCalledOnce();
-    expect(listener.mock.calls[0][0].detail.room).toEqual(room);
-    window.removeEventListener("spartment:room-inquiry", listener);
+    expect(screen.getByLabelText(/preferred move-in date/i)).toBeVisible();
+    expect(screen.getByLabelText(/preferred room/i)).toHaveValue(room.id);
   });
 });
